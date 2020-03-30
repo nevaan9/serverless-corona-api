@@ -1,0 +1,49 @@
+service: corona-script
+
+org: nevaan9
+app: notes-app
+
+# Create an optimized package for our functions
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - venv/**
+    - .vscode/**
+
+provider:
+  name: aws
+  runtime: python3.8
+
+  # These environment variables are made available toour functions under process.env.
+  environment:
+    tableName: corona-data
+
+  # 'iamRoleStatements' defines the permission policy for the Lambda function (what is has access to)
+  # In this case Lambda functions are granted with permissions to access DynamoDB.
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"
+
+# This is the way python packages are managed; They use docker
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+functions:
+  script:
+    handler: handler.main
+    events:
+      # Invoke Lambda function every minute
+      - schedule: rate(12 hours)
+
+plugins:
+  - serverless-python-requirements
