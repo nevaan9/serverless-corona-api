@@ -12,15 +12,26 @@ def main(event, context):
     tableName = os.environ['tableName']
     # Query the items
     try:
-        response = client.query(
+        r = client.query(
                         TableName=tableName,
                         KeyConditionExpression='created_at = :created_at',
-                        ExpressionAttributeValues={ ":created_at": { "S": today } },
+                        ExpressionAttributeValues={ ":created_at": { "S": str(today) } },
                     )
-        data = response['Items']
+        data = r['Items']
+        body = { 'data': data, 'date': 'today' }
+        if len(data) == 0:
+            yesterday = today - datetime.timedelta(days=1)
+            # Get yesterday data
+            r = client.query(
+                        TableName=tableName,
+                        KeyConditionExpression='created_at = :created_at',
+                        ExpressionAttributeValues={ ":created_at": { "S": str(yesterday) } },
+                    )
+            data = r['Items']
+            body = { 'data': data, 'date': 'yesterday' }
         return {
             'statusCode': 200,
-            'body': data,
+            'body': body
         }
     except Exception as exc:
         print(exc)
