@@ -2,6 +2,7 @@
 import boto3
 import datetime
 import os
+import json
 
 def main(event, context):
     # Get todays date
@@ -18,7 +19,6 @@ def main(event, context):
                         ExpressionAttributeValues={ ":created_at": { "S": str(today) } },
                     )
         data = r['Items']
-        body = { 'data': data, 'date': 'today' }
         if len(data) == 0:
             yesterday = today - datetime.timedelta(days=1)
             # Get yesterday data
@@ -28,10 +28,9 @@ def main(event, context):
                         ExpressionAttributeValues={ ":created_at": { "S": str(yesterday) } },
                     )
             data = r['Items']
-            body = { 'data': data, 'date': 'yesterday' }
         return {
             'statusCode': 200,
-            'body': body
+            'body': json.dumps(data)
         }
     except Exception as exc:
         print(exc)
