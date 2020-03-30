@@ -43,7 +43,14 @@ functions:
     handler: handler.main
     events:
       # Invoke Lambda function every minute
-      - schedule: rate(12 hours)
+      - schedule: rate(6 hours)
+
+  list:
+    handler: get.main
+    events:
+      - http:
+          path: countries
+          method: get
 
 plugins:
   - serverless-python-requirements

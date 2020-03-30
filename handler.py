@@ -32,7 +32,7 @@ def main(event, context):
         if (index) == 0:
             return val.text
         if (index == 8):
-            return datetime.datetime.now().strftime("%m/%d/%Y")
+            return datetime.datetime.utcnow().date()
         else:
             try:
                 int_version = int(val.text.replace(',', ''))
