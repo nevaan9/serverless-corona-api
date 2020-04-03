@@ -52,5 +52,13 @@ functions:
           path: countries
           method: get
 
+  plot:
+    handler: plots.main
+    events:
+      - http:
+          path: myplot
+          method: get
+          cors: true
+
 plugins:
   - serverless-python-requirements

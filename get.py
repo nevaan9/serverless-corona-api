@@ -4,6 +4,26 @@ import datetime
 import os
 import json
 
+def getNumericalValues(item, propName, firstPrecedence, secondPrecedence):
+    data = None
+    try:
+        data = item[propName][firstPrecedence]
+    except Exception as exc:
+        data = item[propName][secondPrecedence]
+    return data
+
+def normalize(item):
+    return {
+        'active_cases': getNumericalValues(item, 'active_cases', 'N', 'S'),
+        'created_at': getNumericalValues(item, 'created_at', 'S', 'S'),
+        'cases': getNumericalValues(item, 'cases', 'N', 'S'),
+        'country': getNumericalValues(item, 'country', 'S', 'S'),
+        'recovered': getNumericalValues(item, 'recovered', 'N', 'S'),
+        'deaths': getNumericalValues(item, 'deaths', 'N', 'S'),
+        'new_deaths': getNumericalValues(item, 'new_deaths', 'N', 'S'),
+        'serious_critical': getNumericalValues(item, 'serious_critical', 'N', 'S'),
+    }
+
 def main(event, context):
     # Get todays date
     today = datetime.datetime.utcnow().date()
@@ -28,9 +48,10 @@ def main(event, context):
                         ExpressionAttributeValues={ ":created_at": { "S": str(yesterday) } },
                     )
             data = r['Items']
+        return_data = list(map(normalize, data))
         return {
             'statusCode': 200,
-            'body': json.dumps(data)
+            'body': json.dumps(return_data)
         }
     except Exception as exc:
         print(exc)
